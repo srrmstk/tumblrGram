@@ -28,11 +28,11 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Learn Flutter',
+      title: 'tumblrGram',
       theme: ThemeData(primarySwatch: Colors.blue),
       home: Scaffold(
           appBar: AppBar(
-            title: const Text('tumblrApp'),
+            title: const Text('tumblrGram'),
           ),
           body: PostBuilder(futurePost: futurePost)),
     );
@@ -50,13 +50,37 @@ class PostBuilder extends StatelessWidget {
         future: futurePost,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return ListView.builder(
-                itemCount: snapshot.data!.length,
-                itemBuilder: (_, index) => Center(
-                        child: Padding(
-                      padding: const EdgeInsets.only(top: 4, bottom: 4),
-                      child: Image.network(snapshot.data![index].photo),
-                    )));
+            return GridView.count(
+                physics: const BouncingScrollPhysics(),
+                crossAxisCount: 2,
+                children: List.generate(snapshot.data!.length, (index) {
+                  return Ink.image(
+                    image: NetworkImage(snapshot.data![index].photo),
+                    fit: BoxFit.cover,
+                    child: InkWell(
+                      onTap: () => print('tap $index'),
+                      // uncomment lines below in order to see individual
+                      // loaders. Ripple effect will not work :/
+                      //
+                      // child: Image.network(
+                      //   snapshot.data![index].photo,
+                      //   loadingBuilder: (_, child, loadingProgress) {
+                      //     if (loadingProgress == null) return child;
+                      //     return Center(
+                      //       child: CircularProgressIndicator(
+                      //         value: loadingProgress.expectedTotalBytes !=
+                      //                 null
+                      //             ? loadingProgress.cumulativeBytesLoaded /
+                      //                 loadingProgress.expectedTotalBytes!
+                      //             : null,
+                      //       ),
+                      //     );
+                      //   },
+                      //   fit: BoxFit.cover,
+                      // ),
+                    ),
+                  );
+                }));
           } else if (snapshot.hasError) {
             return const Text('Snapshot error');
           }
@@ -64,5 +88,29 @@ class PostBuilder extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         });
+  }
+}
+
+class ImageBuilder extends StatelessWidget {
+  final Future<String> futureImage;
+  final int index;
+
+  const ImageBuilder({Key? key, required this.futureImage, required this.index})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      builder: (_, snapshot) {
+        if (snapshot.hasData) {
+          NetworkImage('');
+        } else if (snapshot.hasError) {
+          return const Text('Snapshot error');
+        }
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
   }
 }
