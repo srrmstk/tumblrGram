@@ -54,31 +54,35 @@ class PostBuilder extends StatelessWidget {
                 physics: const BouncingScrollPhysics(),
                 crossAxisCount: 2,
                 children: List.generate(snapshot.data!.length, (index) {
-                  return Ink.image(
-                    image: NetworkImage(snapshot.data![index].photo),
-                    fit: BoxFit.cover,
-                    child: InkWell(
-                      onTap: () => print('tap $index'),
-                      // uncomment lines below in order to see individual
-                      // loaders. Ripple effect will not work :/
-                      //
-                      // child: Image.network(
-                      //   snapshot.data![index].photo,
-                      //   loadingBuilder: (_, child, loadingProgress) {
-                      //     if (loadingProgress == null) return child;
-                      //     return Center(
-                      //       child: CircularProgressIndicator(
-                      //         value: loadingProgress.expectedTotalBytes !=
-                      //                 null
-                      //             ? loadingProgress.cumulativeBytesLoaded /
-                      //                 loadingProgress.expectedTotalBytes!
-                      //             : null,
-                      //       ),
-                      //     );
-                      //   },
-                      //   fit: BoxFit.cover,
-                      // ),
-                    ),
+                  return Stack(
+                    children: [
+                      Image.network(
+                        snapshot.data![index].photo,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (_, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          );
+                        },
+                      ),
+                      Positioned.fill(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              print(index);
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                    fit: StackFit.expand,
                   );
                 }));
           } else if (snapshot.hasError) {
